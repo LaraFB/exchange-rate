@@ -1,12 +1,11 @@
 package backend.services;
 
-import backend.services.dto.ExchangeRateResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.Instant;
 import java.util.Locale;
+import java.util.Map;
 
 @Service
 public class ExchangeRateService {
@@ -27,10 +26,7 @@ public class ExchangeRateService {
         base = base.toUpperCase(Locale.ROOT);
         target = target.toUpperCase(Locale.ROOT);
 
-        System.out.println("base: " + base);
-        System.out.println("target: " + target);
         String url = EXCHANGERATE_API_URL + "?access_key=" + EXCHANGEAPI_KEY + "&symbols=" + base + "," + target;
-        System.out.println("url: " + url);
         ExchangeRateApiResponse response = restTemplate.getForObject(url, ExchangeRateApiResponse.class);
         
         if (response != null && response.isSuccess()) {
@@ -39,5 +35,19 @@ public class ExchangeRateService {
         }
 
         throw new RuntimeException("Failed to fetch exchange rate");
+    }
+
+    public Map<String, Double> getAllRates(String currency) {
+        currency = currency.toUpperCase(Locale.ROOT);
+
+        String url = EXCHANGERATE_API_URL + "?access_key=" + EXCHANGEAPI_KEY + "&symbols=" + currency;
+
+        ExchangeRateApiResponse response = restTemplate.getForObject(url, ExchangeRateApiResponse.class);
+
+        if (response == null || !response.isSuccess()) {
+            throw new RuntimeException("Failed to fetch rates");
+        }
+
+        return response.getQuotes();
     }
 }
