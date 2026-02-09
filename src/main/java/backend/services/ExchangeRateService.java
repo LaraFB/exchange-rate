@@ -1,5 +1,6 @@
 package backend.services;
 
+import backend.services.dto.ExchangeRateRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -22,15 +23,15 @@ public class ExchangeRateService {
         this.restTemplate = restTemplate;
     }
 
-    public double getExchangeRate(String base, String target) {
-        base = base.toUpperCase(Locale.ROOT);
-        target = target.toUpperCase(Locale.ROOT);
+    public double getExchangeRate(ExchangeRateRequest request) {
+        String fromCurrency = request.getFromCurrency().toUpperCase(Locale.ROOT);
+        String toCurrency = request.getToCurrency().toUpperCase(Locale.ROOT);
 
-        String url = EXCHANGERATE_API_URL + "?access_key=" + EXCHANGEAPI_KEY + "&symbols=" + base + "," + target;
+        String url = EXCHANGERATE_API_URL + "?access_key=" + EXCHANGEAPI_KEY + "&symbols=" + fromCurrency + "," + toCurrency;
         ExchangeRateApiResponse response = restTemplate.getForObject(url, ExchangeRateApiResponse.class);
         
         if (response != null && response.isSuccess()) {
-            String pair = base + target;
+            String pair = fromCurrency + toCurrency;
             return response.getQuotes().getOrDefault(pair, 0.0);
         }
 

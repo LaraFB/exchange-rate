@@ -2,30 +2,30 @@ package backend.services.dto;
 
 public class ExchangeRateRequest {
 
-    private String base;
-    private String target;
+    private String fromCurrency;
+    private String toCurrency;
 
     public ExchangeRateRequest() {
     }
 
-    public ExchangeRateRequest(String base, String target) {
-        this.base = base;
-        this.target = target;
+    public ExchangeRateRequest(String fromCurrency, String toCurrency) {
+        this.fromCurrency = fromCurrency;
+        this.toCurrency = toCurrency;
     }
 
-    public String getBase() {
-        return base;
+    public String getFromCurrency() {
+        return fromCurrency;
     }
 
-    public void setBase(String base) {
-        this.base = base;
+    public void setFromCurrency(String fromCurrency) {
+        this.fromCurrency = fromCurrency;
     }
 
-    public String getTarget() {
-        return target;
+    public String getToCurrency() {
+        return toCurrency;
     }
 
-    public void setTarget(String target) {
-        this.target = target;
+    public void setToCurrency(String toCurrency) {
+        this.toCurrency = toCurrency;
     }
 }
