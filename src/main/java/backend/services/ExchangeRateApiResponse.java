@@ -1,0 +1,18 @@
+package backend.services;
+
+import java.util.Map;
+
+public class ExchangeRateApiResponse {
+    private boolean success;
+    private String source;
+    private Map<String, Double> quotes;
+
+    public boolean isSuccess() { return success; }
+    public void setSuccess(boolean success) { this.success = success; }
+
+    public String getSource() { return source; }
+    public void setSource(String source) { this.source = source; }
+
+    public Map<String, Double> getQuotes() { return quotes; }
+    public void setQuotes(Map<String, Double> quotes) { this.quotes = quotes; }
+}
