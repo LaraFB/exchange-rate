@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -39,4 +40,10 @@ public class ExchangeRateController {
         return new ExchangeRateResponse(request.getFromCurrency(),request.getToCurrency(), value);
     }
 
+    @GetMapping("/convert-multiple")
+    public Map<String, Double> convertMultiple(@RequestParam String from, @RequestParam List<String> targets,
+                                               @RequestParam(defaultValue = "1") double amount) {
+
+        return exchangeRateService.convertMultiple(from, targets, amount);
+    }
 }
