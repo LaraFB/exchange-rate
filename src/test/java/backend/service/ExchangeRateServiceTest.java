@@ -3,8 +3,8 @@ package backend.service;
 
 import backend.exception.ExchangeRateApiException;
 import backend.services.ExchangeRateService;
-import backend.services.dto.ExchangeRateApiResponse;
-import backend.services.dto.ExchangeRateRequest;
+import backend.dto.ExchangeRateApiResponse;
+import backend.dto.ExchangeRateRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

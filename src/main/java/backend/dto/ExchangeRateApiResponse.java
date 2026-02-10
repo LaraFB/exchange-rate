@@ -1,4 +1,4 @@
-package backend.services.dto;
+package backend.dto;
 
 import java.util.Map;
 

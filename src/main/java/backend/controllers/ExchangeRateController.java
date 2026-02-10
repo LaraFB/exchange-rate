@@ -1,7 +1,7 @@
 package backend.controllers;
 
 import backend.services.ExchangeRateService;
-import backend.services.dto.ExchangeRateRequest;
+import backend.dto.ExchangeRateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;

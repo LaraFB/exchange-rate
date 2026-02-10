@@ -1,4 +1,4 @@
-package backend.services.dto;
+package backend.dto;
 
 public class ExchangeRateResponse {
     private final String base;

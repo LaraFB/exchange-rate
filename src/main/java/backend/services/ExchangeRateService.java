@@ -1,8 +1,8 @@
 package backend.services;
 
 import backend.exception.ExchangeRateApiException;
-import backend.services.dto.ExchangeRateApiResponse;
-import backend.services.dto.ExchangeRateRequest;
+import backend.dto.ExchangeRateApiResponse;
+import backend.dto.ExchangeRateRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
