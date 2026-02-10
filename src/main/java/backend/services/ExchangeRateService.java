@@ -1,6 +1,7 @@
 package backend.services;
 
 import backend.exception.ExchangeRateApiException;
+import backend.services.dto.ExchangeRateApiResponse;
 import backend.services.dto.ExchangeRateRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class ExchangeRateService {
 
     public double getExchangeRate(ExchangeRateRequest request) {
         if (request == null || request.getFromCurrency() == null || request.getToCurrency() == null) {
-            throw new IllegalArgumentException("Invalid ExchangeRateRequest");
+            throw new IllegalArgumentException("Invalid request");
         }
 
         String from = normalize(request.getFromCurrency());
