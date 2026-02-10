@@ -44,12 +44,9 @@ public class ExchangeRateController {
             description = "Converts an amount from one currency to another"
     )
     @PostMapping("/convert")
-    public ExchangeRateResponse convert(@RequestBody ExchangeRateRequest request, @RequestParam(defaultValue = "1") double amount) {
+    public double convert(@RequestBody ExchangeRateRequest request, @RequestParam(defaultValue = "1") double amount) {
 
-        double rate = exchangeRateService.getExchangeRate(request);
-        double value = rate * amount;
-
-        return new ExchangeRateResponse(request.getFromCurrency(),request.getToCurrency(), value);
+        return exchangeRateService.convert(request, amount);
     }
 
     @Operation(

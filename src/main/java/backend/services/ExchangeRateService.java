@@ -1,5 +1,6 @@
 package backend.services;
 
+import backend.exception.ExchangeRateApiException;
 import backend.services.dto.ExchangeRateRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,52 +27,88 @@ public class ExchangeRateService {
     }
 
     public double getExchangeRate(ExchangeRateRequest request) {
-        String fromCurrency = request.getFromCurrency().toUpperCase(Locale.ROOT);
-        String toCurrency = request.getToCurrency().toUpperCase(Locale.ROOT);
-        String url =  EXCHANGERATE_API_URL + "?access_key=" + EXCHANGEAPI_KEY + "&symbols=" + fromCurrency + "," + toCurrency;
-
-        ExchangeRateApiResponse response = restTemplate.getForObject(url, ExchangeRateApiResponse.class);
-        
-        if (response != null && response.isSuccess()) {
-            String pair = fromCurrency + toCurrency;
-            return response.getQuotes().getOrDefault(pair, 0.0);
+        if (request == null || request.getFromCurrency() == null || request.getToCurrency() == null) {
+            throw new IllegalArgumentException("Invalid ExchangeRateRequest");
         }
 
-        throw new RuntimeException("Failed to fetch exchange rate");
+        String from = normalize(request.getFromCurrency());
+        String to = normalize(request.getToCurrency());
+
+        ExchangeRateApiResponse response = callExternalApi(from, to);
+
+        if (!response.isSuccess()) throw new ExchangeRateApiException("Failed to fetch exchange rate");
+
+        Double rate = response.getQuotes().get(from + to);
+        if (rate == null) throw new ExchangeRateApiException("Rate not found for " + from + to);
+
+        return rate;
     }
 
     public Map<String, Double> getAllRates(String currency) {
-        currency = currency.toUpperCase(Locale.ROOT);
-        String url =  EXCHANGERATE_API_URL + "?access_key=" + EXCHANGEAPI_KEY + "&symbols=" + currency;
-
-        ExchangeRateApiResponse response = restTemplate.getForObject(url, ExchangeRateApiResponse.class);
-
-        if (response == null || !response.isSuccess()) {
-            throw new RuntimeException("Failed to fetch rates");
+        if (currency == null || currency.isEmpty()) {
+            throw new IllegalArgumentException("Currency cannot be empty");
         }
+
+        String base = normalize(currency);
+        ExchangeRateApiResponse response = callExternalApi(base, null);
 
         return response.getQuotes();
     }
 
     public Map<String, Double> convertMultiple(String fromCurrency, List<String> targets, double amount) {
-        fromCurrency = fromCurrency.toUpperCase(Locale.ROOT);
-        String toCurrencies = String.join(",", targets).toUpperCase();
-        String url = EXCHANGERATE_API_URL + "?access_key=" + EXCHANGEAPI_KEY + "&symbols=" + fromCurrency + "," + toCurrencies;
-
-        ExchangeRateApiResponse response = restTemplate.getForObject(url, ExchangeRateApiResponse.class);
-
-        if (response == null || !response.isSuccess()) {
-            throw new RuntimeException("Conversion failed");
+        if (fromCurrency == null || fromCurrency.isEmpty() || targets == null || targets.isEmpty() || amount <= 0) {
+            throw new IllegalArgumentException("Invalid parameters");
         }
 
-        Map<String, Double> result = new HashMap<>();
+        fromCurrency = normalize(fromCurrency);
+        String toSymbols = String.join(",", targets).toUpperCase(Locale.ROOT);
 
+        ExchangeRateApiResponse response = callExternalApi(fromCurrency, toSymbols);
+
+        Map<String, Double> result = new HashMap<>();
         for (String target : targets) {
-            String key = fromCurrency + target.toUpperCase();
-            result.put(target.toUpperCase(), response.getQuotes().get(key) * amount);
+            String key = fromCurrency + normalize(target);
+            Double rate = response.getQuotes().get(key);
+
+            if (rate == null) throw new ExchangeRateApiException("Rate not found for " + key);
+
+            result.put(normalize(target), rate * amount);
         }
 
         return result;
     }
 
+    public double convert(ExchangeRateRequest request, double amount) {
+        if(amount <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than zero");
+        }
+
+        double rate = this.getExchangeRate(request);
+
+        if(rate <0.0) {
+            throw new ExchangeRateApiException("Invalid rate");
+        }
+
+        return rate * amount;
+    }
+
+    private ExchangeRateApiResponse callExternalApi(String fromCurrency, String toCurrency) {
+        String url = EXCHANGERATE_API_URL + "?access_key=" + EXCHANGEAPI_KEY + "&base=" + fromCurrency;
+
+        if (toCurrency != null && !toCurrency.isEmpty()) {
+            url += "&symbols=" + toCurrency;
+        }
+
+        ExchangeRateApiResponse response = restTemplate.getForObject(url, ExchangeRateApiResponse.class);
+
+        if (response == null || !response.isSuccess()) {
+            throw new ExchangeRateApiException("Failed to fetch exchange rates for base: " + fromCurrency);
+        }
+
+        return response;
+    }
+
+    private String normalize(String currency) {
+        return currency.toUpperCase(Locale.ROOT);
+    }
 }
