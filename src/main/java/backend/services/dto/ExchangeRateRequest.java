@@ -1,8 +1,12 @@
 package backend.services.dto;
 
-public class ExchangeRateRequest {
+import io.swagger.v3.oas.annotations.media.Schema;
 
+public class ExchangeRateRequest {
+    @Schema(description = "Source currency (ISO 4217 code)", example = "USD")
     private String fromCurrency;
+
+    @Schema(description = "Target currency (ISO 4217 code)", example = "EUR")
     private String toCurrency;
 
     public ExchangeRateRequest() {

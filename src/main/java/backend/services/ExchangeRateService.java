@@ -28,8 +28,8 @@ public class ExchangeRateService {
     public double getExchangeRate(ExchangeRateRequest request) {
         String fromCurrency = request.getFromCurrency().toUpperCase(Locale.ROOT);
         String toCurrency = request.getToCurrency().toUpperCase(Locale.ROOT);
+        String url =  EXCHANGERATE_API_URL + "?access_key=" + EXCHANGEAPI_KEY + "&symbols=" + fromCurrency + "," + toCurrency;
 
-        String url = EXCHANGERATE_API_URL + "?access_key=" + EXCHANGEAPI_KEY + "&symbols=" + fromCurrency + "," + toCurrency;
         ExchangeRateApiResponse response = restTemplate.getForObject(url, ExchangeRateApiResponse.class);
         
         if (response != null && response.isSuccess()) {
@@ -42,8 +42,7 @@ public class ExchangeRateService {
 
     public Map<String, Double> getAllRates(String currency) {
         currency = currency.toUpperCase(Locale.ROOT);
-
-        String url = EXCHANGERATE_API_URL + "?access_key=" + EXCHANGEAPI_KEY + "&symbols=" + currency;
+        String url =  EXCHANGERATE_API_URL + "?access_key=" + EXCHANGEAPI_KEY + "&symbols=" + currency;
 
         ExchangeRateApiResponse response = restTemplate.getForObject(url, ExchangeRateApiResponse.class);
 
@@ -55,10 +54,8 @@ public class ExchangeRateService {
     }
 
     public Map<String, Double> convertMultiple(String fromCurrency, List<String> targets, double amount) {
-
         fromCurrency = fromCurrency.toUpperCase(Locale.ROOT);
         String toCurrencies = String.join(",", targets).toUpperCase();
-
         String url = EXCHANGERATE_API_URL + "?access_key=" + EXCHANGEAPI_KEY + "&symbols=" + fromCurrency + "," + toCurrencies;
 
         ExchangeRateApiResponse response = restTemplate.getForObject(url, ExchangeRateApiResponse.class);
@@ -71,10 +68,10 @@ public class ExchangeRateService {
 
         for (String target : targets) {
             String key = fromCurrency + target.toUpperCase();
-            result.put(target.toUpperCase(),
-                    response.getQuotes().get(key) * amount);
+            result.put(target.toUpperCase(), response.getQuotes().get(key) * amount);
         }
 
         return result;
     }
+
 }

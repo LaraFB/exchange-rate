@@ -3,16 +3,16 @@ package backend.controllers;
 import backend.services.ExchangeRateService;
 import backend.services.dto.ExchangeRateRequest;
 import backend.services.dto.ExchangeRateResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
+@Tag(name = "Exchange Rates", description = "Currency exchange and conversion endpoints")
 public class ExchangeRateController {
 
     private final ExchangeRateService exchangeRateService;
@@ -21,18 +21,30 @@ public class ExchangeRateController {
         this.exchangeRateService = exchangeRateService;
     }
 
-    @GetMapping("/exchange-rate")
-    public double getExchangeRate(@RequestParam ExchangeRateRequest request) {
+    @Operation(
+            summary = "Get exchange rate between two currencies",
+            description = "Returns the exchange rate from one currency to another"
+    )
+    @PostMapping("/exchange-rate")
+    public double getExchangeRate(@RequestBody ExchangeRateRequest request) {
         return exchangeRateService.getExchangeRate(request);
     }
 
+    @Operation(
+            summary = "Get all exchange rates from a base currency",
+            description = "Returns all available exchange rates using the given base currency"
+    )
     @GetMapping("/rates")
     public Map<String, Double> getAllRates(@RequestParam String currency) {
         return exchangeRateService.getAllRates(currency);
     }
 
-    @GetMapping("/convert")
-    public ExchangeRateResponse convert(@RequestParam ExchangeRateRequest request, @RequestParam(defaultValue = "1") double amount) {
+    @Operation(
+            summary = "Convert currency",
+            description = "Converts an amount from one currency to another"
+    )
+    @PostMapping("/convert")
+    public ExchangeRateResponse convert(@RequestBody ExchangeRateRequest request, @RequestParam(defaultValue = "1") double amount) {
 
         double rate = exchangeRateService.getExchangeRate(request);
         double value = rate * amount;
@@ -40,10 +52,13 @@ public class ExchangeRateController {
         return new ExchangeRateResponse(request.getFromCurrency(),request.getToCurrency(), value);
     }
 
+    @Operation(
+            summary = "Convert currency to multiple targets",
+            description = "Converts an amount from a base currency to multiple target currencies"
+    )
     @GetMapping("/convert-multiple")
     public Map<String, Double> convertMultiple(@RequestParam String from, @RequestParam List<String> targets,
                                                @RequestParam(defaultValue = "1") double amount) {
-
         return exchangeRateService.convertMultiple(from, targets, amount);
     }
 }
